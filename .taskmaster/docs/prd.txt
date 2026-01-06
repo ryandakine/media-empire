@@ -1,0 +1,22 @@
+# Project: Media Empire
+Description: A self-hosted media server stack using Docker Compose.
+
+## Core Services
+- Jellyfin (Media streaming server) - Port 8096
+- Radarr (Movie management) - Port 7878
+- Sonarr (TV show management) - Port 8989
+- Prowlarr (Indexer manager) - Port 9696
+- SABnzbd (Usenet downloader) - Port 8085
+- qBittorrent (Torrent client) - Port 8080
+- RDT-Client (Real-Debrid integration) - Port 6500
+- Jellyseerr (Request management) - Port 5055
+- Bazarr (Subtitles) - Port 6767
+- Tautulli (Analytics) - Port 8181
+- Tdarr (Transcoding) - Port 8265
+- Nginx Proxy Manager (Reverse proxy) - Port 81
+
+## Requirements
+- All configs stored in ./config/
+- Media stored in ./media/
+- Downloads in ./downloads/
+- Docker Compose based setup

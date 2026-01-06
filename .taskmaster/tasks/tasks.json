@@ -1,0 +1,779 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Project Structure and Environment Setup",
+        "description": "Initialize the directory structure and environment variables for the Media Empire stack.",
+        "details": "Create the root project directory. Inside, create subdirectories: ./config, ./media (with subfolders movies, tv), and ./downloads (with subfolders torrents, usenet). Create a .env file to store PUID, PGID, and TZ to ensure consistent permissions across containers.",
+        "testStrategy": "Verify directory existence using 'ls -R' and ensure .env file is readable by the docker user.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Root and Config Directories",
+            "description": "Initialize the main project folder and the configuration storage directory.",
+            "dependencies": [],
+            "details": "Execute 'mkdir -p media-empire/config' to establish the base structure for persistent application data.",
+            "status": "pending",
+            "testStrategy": "Run 'ls -d media-empire/config' to confirm directory existence.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Initialize Media Library Subfolders",
+            "description": "Create the hierarchical structure for storing movies and television shows. [Updated: 1/6/2026]",
+            "dependencies": [
+              1
+            ],
+            "details": "Execute 'mkdir -p media-empire/media/movies media-empire/media/tv' to prepare the library for media management services.\n<info added on 2026-01-06T08:23:52.253Z>\nThe media/movies and media/tv directories have been successfully created.\n</info added on 2026-01-06T08:23:52.253Z>",
+            "status": "pending",
+            "testStrategy": "Run 'ls -R media-empire/media' to verify both subdirectories are present.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Initialize Download Management Subfolders",
+            "description": "Create dedicated directories for torrent and usenet download clients.",
+            "dependencies": [
+              1
+            ],
+            "details": "Execute 'mkdir -p media-empire/downloads/torrents media-empire/downloads/usenet' to separate incoming traffic types.",
+            "status": "pending",
+            "testStrategy": "Run 'ls -R media-empire/downloads' to verify the torrents and usenet folders.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Configure Environment Variables File",
+            "description": "Create a .env file containing the PUID, PGID, and Timezone variables. [Updated: 1/6/2026]",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a file named '.env' in the root directory. Populate it with PUID=$(id -u), PGID=$(id -g), and TZ=UTC (or local timezone).\n<info added on 2026-01-06T08:24:01.982Z>\nThe .env file has been successfully created and verified to contain the correct PUID, PGID, and TZ variables.\n</info added on 2026-01-06T08:24:01.982Z>",
+            "status": "pending",
+            "testStrategy": "Run 'cat .env' to ensure variables are correctly formatted and saved.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Set Filesystem Permissions",
+            "description": "Apply ownership and permission rules to ensure Docker containers can read/write to the directories.",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "Run 'chown -R $USER:$USER media-empire' and 'chmod -R 775 media-empire' to prevent permission denied errors during container runtime.\n<info added on 2026-01-06T08:24:11.871Z>\nPermission update partially successful: media and downloads directories are correctly set, but the ./config directory remains root-owned and requires elevated privileges to modify.\n</info added on 2026-01-06T08:24:11.871Z>",
+            "status": "pending",
+            "testStrategy": "Run 'ls -la media-empire' to verify that the current user owns the directories and write bits are set.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 2,
+        "recommendedSubtasks": 2,
+        "expansionPrompt": "Break down into directory creation with permission handling and .env variable definition for PUID/PGID.",
+        "updatedAt": "2026-01-06T08:24:20.023Z"
+      },
+      {
+        "id": "2",
+        "title": "Docker Network and Base Compose Configuration",
+        "description": "Define the Docker Compose version and create a dedicated bridge network for service communication.",
+        "details": "Create a docker-compose.yml file. Define a custom bridge network named 'media-network'. Set up the global volume mappings for ./config, ./media, and ./downloads to be used by subsequent service definitions.",
+        "testStrategy": "Run 'docker network inspect media-network' after a partial up to confirm network creation.",
+        "priority": "high",
+        "dependencies": [
+          "1"
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize docker-compose.yml file",
+            "description": "Create the base docker-compose.yml file in the project root directory.",
+            "dependencies": [],
+            "details": "Create a new file named docker-compose.yml and specify the Docker Compose version (e.g., '3.8') at the top of the file.",
+            "status": "pending",
+            "testStrategy": "Verify file existence using 'ls docker-compose.yml' and validate syntax with 'docker-compose config'.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Define Custom Bridge Network",
+            "description": "Configure a dedicated bridge network for internal container communication. [Updated: 1/6/2026]",
+            "dependencies": [
+              1
+            ],
+            "details": "Add a top-level 'networks' section to the compose file and define 'media-network' with the driver set to 'bridge'.\n<info added on 2026-01-06T08:25:26.865Z>\nThe media-network bridge has been successfully defined in the networks section of the docker-compose.yml file.\n</info added on 2026-01-06T08:25:26.865Z>",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose up --no-start' followed by 'docker network ls' to confirm 'media-network' exists.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Configure Global Volume Mappings",
+            "description": "Define the standard volume paths for configuration, media, and downloads.",
+            "dependencies": [
+              1
+            ],
+            "details": "Map local directories ./config, ./media, and ./downloads to the compose environment to ensure data persistence across all services.",
+            "status": "pending",
+            "testStrategy": "Check the 'volumes' section of the YAML file for correct path syntax and mapping.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Implement Environment Variable Integration",
+            "description": "Link the .env file variables to the base compose configuration.",
+            "dependencies": [
+              1
+            ],
+            "details": "Ensure the compose file is prepared to use ${PUID}, ${PGID}, and ${TZ} variables defined in the Task 1 environment setup.",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose config' to verify that environment variables are correctly interpolated into the configuration.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Validate Network and Volume Schema",
+            "description": "Perform a final validation of the network and volume definitions within the YAML structure. [Updated: 1/6/2026]",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "Review the indentation and structure of the networks and volumes blocks to ensure they follow the Docker Compose specification.\n<info added on 2026-01-06T08:25:29.107Z>\nThe configuration has been successfully validated using the docker compose config command to ensure the YAML structure, networks, and volumes adhere to the Docker Compose specification.\n</info added on 2026-01-06T08:25:29.107Z>",
+            "status": "pending",
+            "testStrategy": "Execute 'docker-compose config -q' to ensure there are no schema errors in the final file.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 3,
+        "recommendedSubtasks": 2,
+        "expansionPrompt": "Detail the creation of the docker-compose.yml skeleton and the definition of the custom bridge network.",
+        "updatedAt": "2026-01-06T08:25:53.433Z"
+      },
+      {
+        "id": "3",
+        "title": "Deploy Download Clients (SABnzbd & qBittorrent)",
+        "description": "Configure the primary download engines for Usenet and Torrents.",
+        "details": "Add SABnzbd (port 8085) and qBittorrent (port 8080) to docker-compose.yml. Map ./downloads/usenet to SABnzbd and ./downloads/torrents to qBittorrent. Ensure they use the 'media-network'.",
+        "testStrategy": "Access web UIs at localhost:8085 and localhost:8080. Verify test downloads can be initiated.",
+        "priority": "high",
+        "dependencies": [
+          "2"
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure SABnzbd Service in Docker Compose",
+            "description": "Add the SABnzbd container definition to the docker-compose.yml file. [Updated: 1/6/2026]",
+            "dependencies": [],
+            "details": "Define the sabnzbd service using the linuxserver/sabnzbd image. Map host port 8085 to container port 8080. Assign it to the 'media-network'.\n<info added on 2026-01-06T08:31:21.727Z>\nMap the host directory ./downloads/usenet to the container to ensure downloads are stored correctly. Access the web UI at localhost:8085 to verify the service is running.\n</info added on 2026-01-06T08:31:21.727Z>",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose up -d' and check if the container starts without errors.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Configure qBittorrent Service in Docker Compose",
+            "description": "Add the qBittorrent container definition to the docker-compose.yml file. [Updated: 1/6/2026]",
+            "dependencies": [],
+            "details": "Define the qbittorrent service using the linuxserver/qbittorrent image. Map host port 8080 to container port 8080. Assign it to the 'media-network'.\n<info added on 2026-01-06T08:31:22.958Z>\nUpdate the host port mapping to 8082 instead of 8080 to resolve a port conflict. The new configuration should map host port 8082 to container port 8080.\n</info added on 2026-01-06T08:31:22.958Z>",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose up -d' and check if the container starts without errors.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Set Up Persistent Volume Mounts",
+            "description": "Configure the local directory mappings for both download clients. [Updated: 1/6/2026]",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Map ./downloads/usenet to /downloads in SABnzbd and ./downloads/torrents to /downloads in qBittorrent. Ensure ./config paths are also mapped for persistence.\n<info added on 2026-01-06T08:31:24.915Z>\nMap the ./media directory to the containers to allow the download clients to move or hardlink completed files to the appropriate media folders.\n</info added on 2026-01-06T08:31:24.915Z>",
+            "status": "pending",
+            "testStrategy": "Verify that the directories exist on the host and are accessible within the containers via 'docker exec'.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Verify Web UI Accessibility",
+            "description": "Ensure the web interfaces for both clients are reachable via the specified ports.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Navigate to http://localhost:8085 for SABnzbd and http://localhost:8080 for qBittorrent to confirm the services are responding.",
+            "status": "pending",
+            "testStrategy": "Confirm the login or setup wizard screen appears for both applications in a web browser.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Validate Download Path Permissions",
+            "description": "Ensure the containers have the necessary read/write permissions for the download folders. [Updated: 1/6/2026]",
+            "dependencies": [
+              3
+            ],
+            "details": "Check the PUID and PGID environment variables in docker-compose to ensure they match the host user owning the ./downloads directory.\n<info added on 2026-01-06T08:31:27.037Z>\nPermissions have been successfully configured by setting the PUID and PGID environment variables in the docker-compose file to match the host user.\n</info added on 2026-01-06T08:31:27.037Z>",
+            "status": "pending",
+            "testStrategy": "Initiate a test download in each client and verify the file is successfully written to the host filesystem.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 4,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Create subtasks for SABnzbd container config, qBittorrent container config, and volume mount verification.",
+        "updatedAt": "2026-01-06T08:31:36.046Z"
+      },
+      {
+        "id": "4",
+        "title": "Deploy Indexer Manager (Prowlarr)",
+        "description": "Set up Prowlarr to manage trackers and indexers for the Arr suite.",
+        "details": "Add Prowlarr (port 9696) to docker-compose.yml. Configure it to store data in ./config/prowlarr. This service will act as the sync point for Radarr and Sonarr indexers.",
+        "testStrategy": "Access localhost:9696 and verify that a test indexer (e.g., 1337x) can be added.",
+        "priority": "high",
+        "dependencies": [
+          "2"
+        ],
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Prowlarr Service in Docker Compose",
+            "description": "Add the Prowlarr service definition to the existing docker-compose.yml file. [Updated: 1/6/2026]",
+            "dependencies": [],
+            "details": "Use image linuxserver/prowlarr:latest, map port 9696:9696, and set the timezone environment variable.\n<info added on 2026-01-06T08:32:27.651Z>\nMap the configuration data to the local directory ./config/prowlarr to ensure persistent storage for the service.\n</info added on 2026-01-06T08:32:27.651Z>",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose config' to ensure the YAML syntax is valid for the new service.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Configure Persistent Volume Mapping",
+            "description": "Set up the local directory structure for Prowlarr configuration data.",
+            "dependencies": [
+              1
+            ],
+            "details": "Map the host directory ./config/prowlarr to /config inside the container to ensure settings persist across restarts.",
+            "status": "pending",
+            "testStrategy": "Verify that the ./config/prowlarr directory is created on the host after the container starts.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Initialize Prowlarr Container",
+            "description": "Pull the image and start the Prowlarr service using Docker Compose.",
+            "dependencies": [
+              2
+            ],
+            "details": "Execute 'docker-compose up -d prowlarr' and monitor logs to ensure the application initializes without errors.",
+            "status": "pending",
+            "testStrategy": "Check 'docker-compose logs prowlarr' for the 'Prowlarr is ready' message.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Configure Initial Indexer and Proxy Settings",
+            "description": "Access the Web UI and set up a test indexer to verify external connectivity.",
+            "dependencies": [
+              3
+            ],
+            "details": "Navigate to localhost:9696, add a public indexer like 1337x, and perform a test search.",
+            "status": "pending",
+            "testStrategy": "Confirm the 'Test' button returns a green checkmark for the added indexer.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Set Up App Integration Sync",
+            "description": "Configure the connection between Prowlarr and other Arr services.",
+            "dependencies": [
+              4
+            ],
+            "details": "Add Radarr and Sonarr as 'Applications' in Prowlarr settings using their internal Docker network hostnames and API keys.",
+            "status": "pending",
+            "testStrategy": "Trigger a 'Sync' and verify that the indexer appears automatically in the Radarr/Sonarr settings.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 3,
+        "recommendedSubtasks": 2,
+        "expansionPrompt": "Focus on the Prowlarr service definition and the initial indexer sync configuration.",
+        "updatedAt": "2026-01-06T08:31:51.275Z"
+      },
+      {
+        "id": "5",
+        "title": "Deploy Media Management (Radarr & Sonarr)",
+        "description": "Configure Radarr for movies and Sonarr for TV shows.",
+        "details": "Add Radarr (7878) and Sonarr (8989) to docker-compose.yml. Map ./media/movies to Radarr and ./media/tv to Sonarr. Connect both to Prowlarr and the download clients via internal Docker DNS.",
+        "testStrategy": "Verify Radarr/Sonarr can communicate with Prowlarr and see the download clients in their 'Download Clients' settings.",
+        "priority": "high",
+        "dependencies": [
+          "3",
+          "4"
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Radarr Service in Docker Compose",
+            "description": "Add the Radarr service definition to the docker-compose.yml file.",
+            "dependencies": [],
+            "details": "Define the Radarr container using the linuxserver/radarr image. Map port 7878, set the PUID/PGID, and mount the volumes for ./config/radarr and ./media/movies.",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose up -d radarr' and verify the UI is accessible at localhost:7878.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Configure Sonarr Service in Docker Compose",
+            "description": "Add the Sonarr service definition to the docker-compose.yml file.",
+            "dependencies": [],
+            "details": "Define the Sonarr container using the linuxserver/sonarr image. Map port 8989, set environment variables, and mount volumes for ./config/sonarr and ./media/tv.",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose up -d sonarr' and verify the UI is accessible at localhost:8989.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Integrate Radarr and Sonarr with Prowlarr",
+            "description": "Sync indexers from Prowlarr to both Radarr and Sonarr using API keys.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Retrieve API keys from Radarr and Sonarr settings. In Prowlarr, add Radarr and Sonarr as 'Applications' using their internal Docker DNS names (http://radarr:7878 and http://sonarr:8989).",
+            "status": "pending",
+            "testStrategy": "Trigger a 'Sync' in Prowlarr and verify that indexers appear in the 'Indexers' tab of both Radarr and Sonarr.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Link Download Clients to Radarr",
+            "description": "Connect Radarr to qBittorrent and SABnzbd for movie downloads.",
+            "dependencies": [
+              1
+            ],
+            "details": "In Radarr Settings > Download Clients, add qBittorrent (port 8080) and SABnzbd (port 8085) using their service names as hostnames. Configure category mapping for 'movies'.",
+            "status": "pending",
+            "testStrategy": "Use the 'Test' button in Radarr's Download Client settings to confirm a successful connection.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Link Download Clients to Sonarr",
+            "description": "Connect Sonarr to qBittorrent and SABnzbd for TV show downloads.",
+            "dependencies": [
+              2
+            ],
+            "details": "In Sonarr Settings > Download Clients, add qBittorrent and SABnzbd using internal Docker DNS. Configure category mapping for 'tv' to ensure proper file sorting.",
+            "status": "pending",
+            "testStrategy": "Use the 'Test' button in Sonarr's Download Client settings to confirm a successful connection.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 6,
+        "recommendedSubtasks": 4,
+        "expansionPrompt": "Separate into Radarr setup, Sonarr setup, API integration with Prowlarr, and download client linkage.",
+        "updatedAt": "2026-01-06T08:33:27.547Z"
+      },
+      {
+        "id": "6",
+        "title": "Deploy Jellyfin Media Server",
+        "description": "Set up the core streaming server to serve the processed media.",
+        "details": "Add Jellyfin (port 8096) to docker-compose.yml. Map the entire ./media folder as read-only to Jellyfin. Configure hardware acceleration if applicable in the environment section.",
+        "testStrategy": "Access localhost:8096, complete the setup wizard, and verify that the library scan detects files in ./media.",
+        "priority": "high",
+        "dependencies": [
+          "5"
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Jellyfin Service in docker-compose.yml",
+            "description": "Add the official Jellyfin image and basic container configuration to the project's docker-compose file.",
+            "dependencies": [],
+            "details": "Specify image: jellyfin/jellyfin, set container_name to jellyfin, and configure the network to use the existing media-network.",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose config' to ensure the YAML syntax is valid for the new service.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Configure Port Mapping and Volume Mounts",
+            "description": "Expose the web interface port and map the media and configuration directories.",
+            "dependencies": [
+              1
+            ],
+            "details": "Map host port 8096 to container port 8096. Mount ./media to /data/media as read-only (:ro) and ./config/jellyfin to /config for persistence.",
+            "status": "pending",
+            "testStrategy": "Verify that the /config directory is created on the host after the container starts.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Implement Hardware Acceleration Passthrough",
+            "description": "Configure the container to access host GPU resources for efficient video transcoding.",
+            "dependencies": [
+              1
+            ],
+            "details": "Add the 'devices' section to the service. For VAAPI, map /dev/dri. For NVENC, specify the NVIDIA runtime and environment variables like NVIDIA_VISIBLE_DEVICES.",
+            "status": "pending",
+            "testStrategy": "Execute 'jellyfin-ffmpeg -drivers' inside the container to verify GPU driver visibility.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Set Environment Variables and User Permissions",
+            "description": "Configure PUID and PGID to ensure the container has correct file system permissions.",
+            "dependencies": [
+              2
+            ],
+            "details": "Add PUID and PGID environment variables matching the host user. Set JELLYFIN_PublishedServerUrl if necessary for remote access discovery.",
+            "status": "pending",
+            "testStrategy": "Check container logs to ensure no 'Permission Denied' errors appear during startup.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Initialize Jellyfin Setup Wizard and Library Scan",
+            "description": "Complete the initial web-based configuration and verify media indexing.",
+            "dependencies": [
+              2,
+              4
+            ],
+            "details": "Access the UI at localhost:8096, create an admin account, and point the library settings to the /data/media mount point defined in subtask 2.",
+            "status": "pending",
+            "testStrategy": "Confirm that media files located in ./media appear in the Jellyfin dashboard after the scan completes.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 5,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Detail the Jellyfin service definition, hardware acceleration (VAAPI/NVENC) passthrough, and library mapping.",
+        "updatedAt": "2026-01-06T08:34:35.797Z"
+      },
+      {
+        "id": "7",
+        "title": "Integrate Real-Debrid and Request Management",
+        "description": "Deploy RDT-Client and Jellyseerr for advanced content acquisition.",
+        "details": "Add RDT-Client (6500) for Real-Debrid downloads and Jellyseerr (5055) for user requests. Link Jellyseerr to Jellyfin, Radarr, and Sonarr APIs.",
+        "testStrategy": "Log into Jellyseerr and verify it can successfully trigger a 'Request' that appears in Radarr/Sonarr.",
+        "priority": "medium",
+        "dependencies": [
+          "5",
+          "6"
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Deploy RDT-Client Container",
+            "description": "Add the RDT-Client service to the docker-compose.yml file.",
+            "dependencies": [],
+            "details": "Configure RDT-Client on port 6500 with persistent volume mapping for configuration and the downloads directory.",
+            "status": "pending",
+            "testStrategy": "Verify the web UI is accessible at localhost:6500.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Configure Real-Debrid API in RDT-Client",
+            "description": "Link the RDT-Client to a Real-Debrid account using an API token.",
+            "dependencies": [
+              1
+            ],
+            "details": "Input the Real-Debrid API key into the RDT-Client settings and configure download paths to match the global media structure.",
+            "status": "pending",
+            "testStrategy": "Check the RDT-Client logs to confirm successful authentication with Real-Debrid.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Deploy Jellyseerr Container",
+            "description": "Add the Jellyseerr service to the docker-compose.yml file.",
+            "dependencies": [],
+            "details": "Expose Jellyseerr on port 5055 and ensure it is connected to the 'media-network' for internal service communication.",
+            "status": "pending",
+            "testStrategy": "Verify the Jellyseerr setup wizard appears at localhost:5055.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Connect Jellyseerr to Jellyfin and Arrs",
+            "description": "Perform the initial handshake between Jellyseerr and the media stack.",
+            "dependencies": [
+              3
+            ],
+            "details": "Configure Jellyseerr to connect to Jellyfin (8096), Radarr (7878), and Sonarr (8989) using their respective API keys.",
+            "status": "pending",
+            "testStrategy": "Use the 'Test' button in Jellyseerr settings for each service to confirm connectivity.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Validate Request Automation Workflow",
+            "description": "Test the end-to-end flow from request to download trigger.",
+            "dependencies": [
+              2,
+              4
+            ],
+            "details": "Submit a request for a movie and a TV show in Jellyseerr and verify they are automatically added to Radarr and Sonarr.",
+            "status": "pending",
+            "testStrategy": "Confirm that a request in Jellyseerr successfully appears in the Radarr/Sonarr activity queue.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 7,
+        "recommendedSubtasks": 4,
+        "expansionPrompt": "Outline RDT-Client setup, Jellyseerr deployment, and the multi-service API handshake for request automation.",
+        "updatedAt": "2026-01-06T08:35:21.407Z"
+      },
+      {
+        "id": "8",
+        "title": "Deploy Subtitle and Analytics Tools (Bazarr & Tautulli)",
+        "description": "Add Bazarr for subtitle management and Tautulli for Jellyfin/Plex monitoring.",
+        "details": "Add Bazarr (6767) and Tautulli (8181) to the compose file. Map Bazarr to the media libraries to allow it to scan for missing subtitles.",
+        "testStrategy": "Check if Bazarr can see the movie list from Radarr and if Tautulli can connect to the Jellyfin API/Logs.",
+        "priority": "low",
+        "dependencies": [
+          "6"
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Update Docker Compose with Bazarr and Tautulli Services",
+            "description": "Add the service definitions for Bazarr and Tautulli to the existing docker-compose.yml file.",
+            "dependencies": [],
+            "details": "Define Bazarr on port 6767 and Tautulli on port 8181. Ensure both services are attached to the 'media-network' and have persistent volume mappings in the ./config directory.",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose up -d' and verify both containers start without errors.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Configure Bazarr Path Mappings and Media Access",
+            "description": "Map the media libraries to Bazarr and ensure path consistency with Radarr and Sonarr.",
+            "dependencies": [
+              1
+            ],
+            "details": "Mount the ./media directory to the Bazarr container. Configure internal path mappings within the Bazarr UI to match the folder structures used by the download managers.",
+            "status": "pending",
+            "testStrategy": "Verify that Bazarr can successfully browse the file system and see existing media files.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Setup Bazarr Subtitle Providers and API Integration",
+            "description": "Configure subtitle providers like OpenSubtitles or Addic7ed and link Bazarr to Radarr/Sonarr.",
+            "dependencies": [
+              2
+            ],
+            "details": "Enter API keys for subtitle providers. Use the 'Settings > Radarr/Sonarr' menu to input the respective API keys and addresses to sync the movie and TV show lists.",
+            "status": "pending",
+            "testStrategy": "Trigger a manual search for a missing subtitle and check if providers return results.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Connect Tautulli to Jellyfin/Plex API",
+            "description": "Establish a connection between Tautulli and the media server for activity monitoring.",
+            "dependencies": [
+              1
+            ],
+            "details": "Input the Jellyfin/Plex server address and generate an API token to allow Tautulli to fetch library metadata and active session information.",
+            "status": "pending",
+            "testStrategy": "Check the Tautulli dashboard to see if it correctly displays the server version and current library statistics.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Configure Tautulli Notification Hooks and Logs",
+            "description": "Set up monitoring hooks to track playback events and library updates.",
+            "dependencies": [
+              4
+            ],
+            "details": "Configure notification agents (e.g., Discord, Email, or Script) within Tautulli to trigger on specific events like 'Playback Start' or 'New Content Added'.",
+            "status": "pending",
+            "testStrategy": "Play a video on the media server and verify that the activity appears in the Tautulli 'Activity' tab in real-time.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 4,
+        "recommendedSubtasks": 2,
+        "expansionPrompt": "Define subtasks for Bazarr subtitle provider setup and Tautulli monitoring hooks.",
+        "updatedAt": "2026-01-06T08:36:00.068Z"
+      },
+      {
+        "id": "9",
+        "title": "Deploy Transcoding and Optimization (Tdarr)",
+        "description": "Set up Tdarr for automated library transcoding and space saving.",
+        "details": "Add Tdarr (8265) and Tdarr_Node to docker-compose.yml. Ensure the node has access to ./media. Configure a basic plugin stack to convert files to H265/HEVC.",
+        "testStrategy": "Verify the Tdarr tab shows the node as 'Online' and can successfully probe a file in the media folder.",
+        "priority": "low",
+        "dependencies": [
+          "6"
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Tdarr Server in Docker Compose",
+            "description": "Add the Tdarr server container definition to the docker-compose.yml file.",
+            "dependencies": [],
+            "details": "Define the server service using the official image, mapping port 8265 and setting up the /app/server and /app/configs volumes.",
+            "status": "pending",
+            "testStrategy": "Verify the Tdarr web UI is accessible at localhost:8265 after container startup.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Configure Tdarr Node and Media Volume Mapping",
+            "description": "Add the Tdarr_Node service to the compose file with access to the media library.",
+            "dependencies": [
+              1
+            ],
+            "details": "Map the ./media directory to the node container and ensure the serverIP environment variable points to the Tdarr server container.",
+            "status": "pending",
+            "testStrategy": "Check the Tdarr Server 'Nodes' tab to confirm the node appears as 'Online'.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Enable GPU Passthrough for Hardware Acceleration",
+            "description": "Configure the Tdarr Node to utilize host GPU resources for transcoding.",
+            "dependencies": [
+              2
+            ],
+            "details": "Add the 'deploy' section with 'reservations' for 'gpu' in docker-compose and set the 'NVIDIA_VISIBLE_DEVICES' or equivalent environment variables.",
+            "status": "pending",
+            "testStrategy": "Run 'nvidia-smi' or equivalent inside the node container to verify driver access.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Define H265/HEVC Transcoding Plugin Stack",
+            "description": "Set up the library processing rules and plugin sequence in the Tdarr UI.",
+            "dependencies": [
+              1
+            ],
+            "details": "Select and order plugins such as 'Tdarr_Plugin_MC93_Migz1FFMPEG' to convert files to HEVC and remove unnecessary audio streams.",
+            "status": "pending",
+            "testStrategy": "Review the 'Transcode' tab in the UI to ensure the plugin stack is valid and saved.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Initialize Library Scan and Worker Allocation",
+            "description": "Map the media library in the UI and assign workers to the node.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Add the library path in Tdarr settings, trigger a scan, and manually allocate Transcode/Health check workers to the active node.",
+            "status": "pending",
+            "testStrategy": "Confirm a file from the ./media folder is successfully probed and added to the transcode queue.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 8,
+        "recommendedSubtasks": 4,
+        "expansionPrompt": "Break down into Tdarr Server setup, Tdarr Node configuration, GPU worker allocation, and plugin stack definition.",
+        "updatedAt": "2026-01-06T08:36:37.781Z"
+      },
+      {
+        "id": "10",
+        "title": "Reverse Proxy Setup (Nginx Proxy Manager)",
+        "description": "Configure Nginx Proxy Manager to provide clean URLs and SSL for the services.",
+        "details": "Add Nginx Proxy Manager (port 81 for admin, 80/443 for traffic). Create a separate database container (MariaDB) if required by NPM or use the SQLite default. Configure proxy hosts for all services (e.g., jellyfin.local).",
+        "testStrategy": "Access the NPM admin UI at localhost:81 and verify that a proxy host successfully routes traffic to a service port.",
+        "priority": "medium",
+        "dependencies": [
+          "2"
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Nginx Proxy Manager and Database in Docker Compose",
+            "description": "Add the Nginx Proxy Manager (NPM) and MariaDB service definitions to the docker-compose.yml file.",
+            "dependencies": [],
+            "details": "Configure the NPM container with ports 80, 443, and 81. Link it to a MariaDB container using the 'media-network' and define environment variables for DB_MYSQL_HOST, DB_MYSQL_PORT, DB_MYSQL_USER, and DB_MYSQL_PASSWORD.",
+            "status": "pending",
+            "testStrategy": "Run 'docker-compose up -d' and verify both containers are running without errors using 'docker ps'.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Initialize NPM Admin Interface and Security",
+            "description": "Access the web-based management interface to set up the initial administrator account.",
+            "dependencies": [
+              1
+            ],
+            "details": "Navigate to http://[server-ip]:81. Log in with default credentials (admin@example.com / changeme) and immediately update the admin email and password as prompted by the system.",
+            "status": "pending",
+            "testStrategy": "Confirm successful login to the dashboard with the newly created credentials.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Configure DNS and Port Forwarding",
+            "description": "Prepare the network environment for external traffic and SSL validation.",
+            "dependencies": [
+              2
+            ],
+            "details": "Set up A records or CNAMEs for your domain pointing to your public IP. Ensure ports 80 and 443 are forwarded from your router to the host machine running NPM.",
+            "status": "pending",
+            "testStrategy": "Use an external tool like 'dig' or 'nslookup' to verify DNS resolution and a port checker to confirm 80/443 are open.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Create Proxy Hosts for Internal Services",
+            "description": "Map clean URLs to the internal Docker service names and ports.",
+            "dependencies": [
+              3
+            ],
+            "details": "In the NPM dashboard, add Proxy Hosts for services like Jellyfin (port 8096), Radarr (port 7878), and Sonarr (port 8989) using their container names as the forward hostname.",
+            "status": "pending",
+            "testStrategy": "Attempt to access the services via the defined domain names over HTTP.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Generate and Assign Let's Encrypt SSL Certificates",
+            "description": "Secure the proxy hosts using automated SSL certificates from Let's Encrypt.",
+            "dependencies": [
+              4
+            ],
+            "details": "Edit each Proxy Host in NPM, navigate to the SSL tab, and select 'Request a new SSL Certificate'. Enable 'Force SSL' and 'HTTP/2 Support' for enhanced security.",
+            "status": "pending",
+            "testStrategy": "Verify that the browser shows a valid padlock icon and the connection is HTTPS when visiting the service URLs.",
+            "parentId": "undefined"
+          }
+        ],
+        "complexity": 6,
+        "recommendedSubtasks": 3,
+        "expansionPrompt": "Detail the NPM container setup, database initialization, and SSL certificate generation (Let's Encrypt).",
+        "updatedAt": "2026-01-06T08:37:05.972Z"
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-01-06T08:37:05.973Z",
+      "taskCount": 10,
+      "completedCount": 9,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}

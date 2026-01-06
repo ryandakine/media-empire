@@ -1,0 +1,93 @@
+{
+	"meta": {
+		"generatedAt": "2026-01-06T08:16:15.499Z",
+		"tasksAnalyzed": 10,
+		"totalTasks": 10,
+		"analysisCount": 10,
+		"thresholdScore": 5,
+		"projectName": "Task Master",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Project Structure and Environment Setup",
+			"complexityScore": 2,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Break down into directory creation with permission handling and .env variable definition for PUID/PGID.",
+			"reasoning": "Straightforward filesystem operations and environment variable definition. Low risk but foundational."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Docker Network and Base Compose Configuration",
+			"complexityScore": 3,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Detail the creation of the docker-compose.yml skeleton and the definition of the custom bridge network.",
+			"reasoning": "Requires understanding of Docker networking and YAML syntax, but remains a boilerplate setup task."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Deploy Download Clients (SABnzbd & qBittorrent)",
+			"complexityScore": 4,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Create subtasks for SABnzbd container config, qBittorrent container config, and volume mount verification.",
+			"reasoning": "Involves multiple containers and specific port mappings, plus ensuring correct download pathing."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Deploy Indexer Manager (Prowlarr)",
+			"complexityScore": 3,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Focus on the Prowlarr service definition and the initial indexer sync configuration.",
+			"reasoning": "Single service deployment, though it requires understanding of how it will later interface with other apps."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Deploy Media Management (Radarr & Sonarr)",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Separate into Radarr setup, Sonarr setup, API integration with Prowlarr, and download client linkage.",
+			"reasoning": "High complexity due to the inter-service communication requirements and API key management between four different services."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Deploy Jellyfin Media Server",
+			"complexityScore": 5,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Detail the Jellyfin service definition, hardware acceleration (VAAPI/NVENC) passthrough, and library mapping.",
+			"reasoning": "Hardware acceleration (GPU passthrough) can be technically challenging depending on the host OS and drivers."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Integrate Real-Debrid and Request Management",
+			"complexityScore": 7,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Outline RDT-Client setup, Jellyseerr deployment, and the multi-service API handshake for request automation.",
+			"reasoning": "Complex integration involving external APIs (Real-Debrid) and linking to three other internal services (Jellyfin, Radarr, Sonarr)."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Deploy Subtitle and Analytics Tools (Bazarr & Tautulli)",
+			"complexityScore": 4,
+			"recommendedSubtasks": 2,
+			"expansionPrompt": "Define subtasks for Bazarr subtitle provider setup and Tautulli monitoring hooks.",
+			"reasoning": "Standard service deployment, though Bazarr requires careful path mapping to match Radarr/Sonarr."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Deploy Transcoding and Optimization (Tdarr)",
+			"complexityScore": 8,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down into Tdarr Server setup, Tdarr Node configuration, GPU worker allocation, and plugin stack definition.",
+			"reasoning": "Highest technical difficulty due to distributed node architecture, library processing logic, and heavy resource/driver dependencies."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Reverse Proxy Setup (Nginx Proxy Manager)",
+			"complexityScore": 6,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Detail the NPM container setup, database initialization, and SSL certificate generation (Let's Encrypt).",
+			"reasoning": "Requires networking knowledge, port forwarding on the router, and SSL/DNS management."
+		}
+	]
+}
