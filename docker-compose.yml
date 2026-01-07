@@ -10,8 +10,7 @@ services:
       - TZ=${TZ}
     volumes:
       - ./config/sabnzbd:/config
-      - /media/ryan/ROOTFS/media_empire/downloads/usenet:/downloads
-      - /media/ryan/ROOTFS/media_empire/downloads/complete:/downloads/complete
+      - /media/ryan/ROOTFS/media_empire/downloads:/downloads
     ports:
       - "8085:8080"
     networks:
