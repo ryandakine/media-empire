@@ -12,7 +12,7 @@ services:
       - ./config/sabnzbd:/config
       - /media/ryan/ROOTFS/media_empire/downloads:/downloads
     ports:
-      - "8085:8080"
+      - "127.0.0.1:8085:8080"  # Localhost only - access via Cloudflare tunnel
     networks:
       - media-network
     restart: unless-stopped
@@ -27,9 +27,9 @@ services:
       - WEBUI_PORT=8082
     volumes:
       - ./config/qbittorrent:/config
-      - /media/ryan/ROOTFS/media_empire/downloads/torrents:/downloads
+      - /media/ryan/ROOTFS/media_empire/downloads:/downloads
     ports:
-      - "8082:8082"
+      - "127.0.0.1:8082:8082"  # Localhost only
       - "6881:6881"
       - "6881:6881/udp"
     networks:
@@ -46,7 +46,7 @@ services:
     volumes:
       - ./config/prowlarr:/config
     ports:
-      - "9696:9696"
+      - "127.0.0.1:9696:9696"  # Localhost only
     networks:
       - media-network
     restart: unless-stopped
@@ -63,7 +63,7 @@ services:
       - /media/ryan/ROOTFS/media_empire/movies:/movies
       - /media/ryan/ROOTFS/media_empire/downloads:/downloads
     ports:
-      - "7878:7878"
+      - "127.0.0.1:7878:7878"  # Localhost only
     networks:
       - media-network
     restart: unless-stopped
@@ -80,7 +80,7 @@ services:
       - /media/ryan/ROOTFS/media_empire/tv:/tv
       - /media/ryan/ROOTFS/media_empire/downloads:/downloads
     ports:
-      - "8989:8989"
+      - "127.0.0.1:8989:8989"  # Localhost only
     networks:
       - media-network
     restart: unless-stopped
@@ -114,7 +114,7 @@ services:
       - ./config/rdtclient:/data/db
       - /media/ryan/ROOTFS/media_empire/downloads:/data/downloads
     ports:
-      - "6500:6500"
+      - "127.0.0.1:6500:6500"  # Localhost only
     networks:
       - media-network
     restart: unless-stopped
@@ -129,7 +129,7 @@ services:
     volumes:
       - ./config/jellyseerr:/app/config
     ports:
-      - "5055:5055"
+      - "127.0.0.1:5055:5055"  # Localhost only - access via Cloudflare tunnel
     networks:
       - media-network
     restart: unless-stopped
@@ -146,7 +146,7 @@ services:
       - /media/ryan/ROOTFS/media_empire/movies:/movies
       - /media/ryan/ROOTFS/media_empire/tv:/tv
     ports:
-      - "6767:6767"
+      - "127.0.0.1:6767:6767"  # Localhost only
     networks:
       - media-network
     restart: unless-stopped
@@ -161,7 +161,7 @@ services:
     volumes:
       - ./config/tautulli:/config
     ports:
-      - "8181:8181"
+      - "127.0.0.1:8181:8181"  # Localhost only
     networks:
       - media-network
     restart: unless-stopped
@@ -183,13 +183,12 @@ services:
       - ./config/tdarr/server:/app/server
       - ./config/tdarr/configs:/app/configs
       - ./config/tdarr/logs:/app/logs
-
       - /media/ryan/ROOTFS/media_empire/movies:/media/movies
       - /media/ryan/ROOTFS/media_empire/tv:/media/tv
       - /media/ryan/ROOTFS/media_empire/downloads/transcode_cache:/temp
     ports:
-      - "8265:8265"
-      - "8266:8266"
+      - "127.0.0.1:8265:8265"  # Localhost only
+      - "127.0.0.1:8266:8266"  # Localhost only
     networks:
       - media-network
     restart: unless-stopped
@@ -202,10 +201,10 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - UN_RADARR_0_URL=http://radarr:7878
-      - UN_RADARR_0_API_KEY=4df9b2c5d0c641808fb9bd8e2d30c156
+      - UN_RADARR_0_API_KEY=${RADARR_API_KEY}
       - UN_RADARR_0_PATHS_0=/downloads
       - UN_SONARR_0_URL=http://sonarr:8989
-      - UN_SONARR_0_API_KEY=3b2b941b68bc40aa822ee14d58f28786
+      - UN_SONARR_0_API_KEY=${SONARR_API_KEY}
       - UN_SONARR_0_PATHS_0=/downloads
     volumes:
       - /media/ryan/ROOTFS/media_empire/downloads:/downloads
@@ -227,6 +226,16 @@ services:
       - "80:80"
       - "81:81"
       - "443:443"
+    networks:
+      - media-network
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
       - media-network
     restart: unless-stopped
